@@ -15,6 +15,13 @@ var dbase = db.db("calendar");
         console.log('app working on 4000')
     })
 
+    app.use(function (req, res, next) {
+        res.header("Access-Control-Allow-Origin", "*");
+        res.header("Access-Control-Allow-Methods", "GET, PUT, POST, DELETE");
+        res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
+        next();
+      });
+
     app.get('/', function (req, res) {
         res.send("Calendar is working");
     });
@@ -72,9 +79,9 @@ var dbase = db.db("calendar");
       });
     
     app.delete('/event/delete/:id', (req, res, next) => {
-        let id = ObjectID(req.params.id);
+        let _id = ObjectID(req.params.id);
     
-        dbase.collection('event').deleteOne({ id }, (err, result) => {
+        dbase.collection('event').deleteOne({ _id }, (err, result) => {
             if (err) {
                 throw err;
             }
@@ -83,19 +90,7 @@ var dbase = db.db("calendar");
         });
     }); 
     
-    app.delete('/name/delete/:id', (req, res, next) => {
-        let id = ObjectID(req.params.id);
-    
-        dbase.collection('name').deleteOne({_id: id}, (err, result) => {
-          if(err) {
-            throw err;
-          }
-    
-          res.send('user deleted');
-        });
-      });
-    
-})
+  })
 
 
 

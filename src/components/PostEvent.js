@@ -6,7 +6,7 @@ import { withStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import moment from 'moment';
 
-const uuidv1 = require('uuid/v1');
+//const uuidv1 = require('uuid/v1');
 
 const styles = theme => ({
     container: {
@@ -41,7 +41,6 @@ class PostPeople extends Component {
 
 
         const data = {
-            id: uuidv1(),
             eventName,
             eventDesc,
             eventDate,
@@ -49,10 +48,12 @@ class PostPeople extends Component {
             createdDate,
             createdTime,
         }
-        this.props.dispatch({
-            type: 'ADD_POST',
-            data
-        });
+        // this.props.dispatch({
+        //     type: 'ADD_POST',
+        //     data
+        // });
+
+        this.props.handleAddEvent(data);
 
         this.getEventName.value = '';
         this.getEventDesc.value = '';

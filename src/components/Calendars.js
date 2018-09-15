@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
- import ShowEvent from './ShowEvent';
+import ShowEvent from './ShowEvent';
 import ButtonAppBar from './ButtonAppBar';
- import PostEvent from './PostEvent';
+import PostEvent from './PostEvent';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
@@ -17,7 +17,6 @@ import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import ListItemText from '@material-ui/core/ListItemText';
 import IconButton from '@material-ui/core/IconButton';
 import DeleteIcon from '@material-ui/icons/Delete';
-import moment from 'moment';
 import axios from 'axios'
 
 function getModalStyle() {
@@ -68,8 +67,12 @@ class Calendars extends Component {
         this.state = {
             selectedCalendarId: '', open: false, dense: false,
             secondary: false,
-            events:[]
+            events: [],
+            calendars: []
         }
+
+        this.handleAddEvent = this.handleAddEvent.bind(this);
+
     }
 
     clickHandler(id) {
@@ -86,86 +89,154 @@ class Calendars extends Component {
     };
 
     handleDelete(id) {
-        this.props.dispatch({ type: 'DELETE_POST', id: id });
+        // this.props.dispatch({ type: 'DELETE_POST', id: id });
+        this.deleteEvent(id).then(data => {
+            console.log(JSON.stringify(data));
+            this.getInitialdata().then(data => {
+                this.setState({
+                    calendars: data
+                });
+            });
+        });
     }
 
-    componentDidMount(){
-        // axios.get(`http://localhost:4000/events`)
-        // .then(res => {
-        //   const events = res.data;
-        //   console.log('Json data'+JSON.stringify(events))
-        //   //this.setState({events})
-        //   this.props.dispatch({ type: 'INTIAL_EVENTS', events });
-        // })
+    handleAddEvent(event) {
+        this.addEvent(event).then(data => {
+            console.log(JSON.stringify(data));
+            this.getInitialdata().then(data => {
+                this.setState({
+                    calendars: data
+                });
+            });
+        })
 
+        console.log("state" + this.state.calendars)
     }
+
+    componentDidMount() {
+
+        this.getInitialdata().then(data => {
+            this.setState({
+                calendars: data
+            });
+        });
+    }
+
+    async getInitialdata() {
+        try {
+            let calData = await axios({
+                method: "get",
+                url: "http://localhost:4000/events"
+            });
+
+            console.log("gettopics" + JSON.stringify(calData.data));
+
+            return calData.data;
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    async addEvent(event) {
+        try {
+            let calData = await axios({
+                method: "post",
+                url: "http://localhost:4000/event/add",
+                data: event
+            });
+
+            //console.log("gettopics" + JSON.stringify(calData.data));
+
+            return calData.data;
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    async deleteEvent(id) {
+       
+        try {
+            let calData = await axios({
+                method: "delete",
+                url: `http://localhost:4000/event/delete/${id}`
+            });
+
+            console.log("gettopics" + JSON.stringify(calData.data));
+
+            return calData.data;
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+
     render() {
 
         const { classes } = this.props;
         const { dense, secondary } = this.state;
         return (
             <div className={classes.root}>
-              
-                    < ButtonAppBar />
-                    <Grid container spacing={8} style={{ marginTop: '5px' }}>
-                        <Grid item xs={3}>
-                            <Paper className={classes.paper}>
-                                <h1>Calenders</h1>
-                                <div className={classes.demo}>
-                                    <List dense={dense}>
-                                        {this.props.calendars.map((calendar) => {
-                                            return (generate(
-                                                <ListItem>
 
-                                                    <ListItemText
-                                                        primary={calendar.eventName}
-                                                        secondary={secondary ? 'Secondary text' : null}
-                                                        onClick={this.clickHandler.bind(this, calendar.id)}
-                                                    />
-                                                    <ListItemSecondaryAction>
-                                                        <IconButton onClick={this.handleDelete.bind(this, calendar.id)}
-                                                            aria-label="Delete" >
-                                                            <DeleteIcon
-                                                            />
-                                                        </IconButton>
-                                                    </ListItemSecondaryAction>
-                                                </ListItem>,
-                                            ))
-                                        })}
-                                    </List>
-                                </div>
+                < ButtonAppBar />
+                <Grid container spacing={8} style={{ marginTop: '5px' }}>
+                    <Grid item xs={3}>
+                        <Paper className={classes.paper}>
+                            <h1>Calenders</h1>
+                            <div className={classes.demo}>
+                                <List dense={dense}>
+                                    {this.state.calendars.map((calendar) => {
+                                        return (generate(
+                                            <ListItem>
 
-                            </Paper>
-                        </Grid>
-                        <Grid item xs={7}>
-                            <Paper className={classes.paper}>
-                                {this.state.selectedCalendarId ? <ShowEvent id={this.state.selectedCalendarId} /> :
-                                    <div > <h2> Select a Event ! </h2> </div>}
-
-                            </Paper>
-                        </Grid>
-                        <Grid item xs={2}>
-                            <Paper className={classes.paper}>
-                                <Button onClick={this.handleOpen}>Add Event</Button>
-                            </Paper>
-                        </Grid>
-
-                        <Modal
-                            aria-labelledby="simple-modal-title"
-                            aria-describedby="simple-modal-description"
-                            open={this.state.open}
-                            onClose={this.handleClose}
-                        >
-                            <div style={getModalStyle()} className={classes.modelPaper}>
-                                <Typography variant="title" id="modal-title">
-                                    Add a Event
-                                </Typography>
-                                <PostEvent handleClose={this.handleClose} />
+                                                <ListItemText
+                                                    primary={calendar.eventName}
+                                                    secondary={secondary ? 'Secondary text' : null}
+                                                    onClick={this.clickHandler.bind(this, calendar._id)}
+                                                />
+                                                <ListItemSecondaryAction>
+                                                    <IconButton onClick={this.handleDelete.bind(this, calendar._id)}
+                                                        aria-label="Delete" >
+                                                        <DeleteIcon
+                                                        />
+                                                    </IconButton>
+                                                </ListItemSecondaryAction>
+                                            </ListItem>,
+                                        ))
+                                    })}
+                                </List>
                             </div>
-                        </Modal>
 
+                        </Paper>
                     </Grid>
-                
+                    <Grid item xs={7}>
+                        <Paper className={classes.paper}>
+                            {this.state.selectedCalendarId ? <ShowEvent calData={this.state.calendars} _id={this.state.selectedCalendarId} /> :
+                                <div > <h2> Select a Event ! </h2> </div>}
+
+                        </Paper>
+                    </Grid>
+                    <Grid item xs={2}>
+                        <Paper className={classes.paper}>
+                            <Button onClick={this.handleOpen}>Add Event</Button>
+                        </Paper>
+                    </Grid>
+
+                    <Modal
+                        aria-labelledby="simple-modal-title"
+                        aria-describedby="simple-modal-description"
+                        open={this.state.open}
+                        onClose={this.handleClose}
+                    >
+                        <div style={getModalStyle()} className={classes.modelPaper}>
+                            <Typography variant="title" id="modal-title">
+                                Add a Event
+                                </Typography>
+                            <PostEvent handleAddEvent={this.handleAddEvent} handleClose={this.handleClose} />
+                        </div>
+                    </Modal>
+
+                </Grid>
+
             </div>
         );
     }

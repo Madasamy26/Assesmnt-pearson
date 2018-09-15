@@ -1,9 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import classNames from 'classnames';
 import { withStyles } from '@material-ui/core/styles';
-import Avatar from '@material-ui/core/Avatar';
 import Typography from '@material-ui/core/Typography';
 
 
@@ -32,12 +30,12 @@ class ShowEvent extends Component {
     render() {
 
         const { classes } = this.props;
-        const calendars = this.props.calendars.filter((calendar) => calendar.id === this.props.id)
+        const calendars = this.props.calData.filter((calendar) => calendar._id === this.props._id)
 
         return <div>
             <h2>Event Details:</h2>
             {calendars.map((calendar) => {
-                return (<div key={calendar.id} className={classes.row}>
+                return (<div key={calendar._id} className={classes.row}>
 
 
                     <Typography variant="body2" gutterBottom>
